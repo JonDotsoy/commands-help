@@ -3,7 +3,6 @@
 #
 take() {
     endDirectory=$1
-    echo endDirectory=$endDirectory
     if [[ -z $endDirectory ]]; then
         echo Require one argument
         return 1
