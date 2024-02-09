@@ -1,0 +1,20 @@
+{
+  "name": "git-tools",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.2.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@jondotsoy/flags": "^2.0.2",
+    "chalk": "^5.3.0",
+    "openai": "^4.27.0"
+  },
+  "scripts": {
+    "fmt": "prettier -w ."
+  }
+}
