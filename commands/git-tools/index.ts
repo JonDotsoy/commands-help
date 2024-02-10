@@ -17,7 +17,7 @@ import {
 } from "bun";
 import { homedir } from "os";
 import { OpenAI } from "openai";
-import { writeFile, mkdir, readFile } from "fs/promises";
+import { writeFile, mkdir, readFile, stat } from "fs/promises";
 import chalk from "chalk";
 import type { MessageContentText } from "openai/resources/beta/threads/messages/messages.mjs";
 import { existsSync } from "fs";
@@ -52,6 +52,28 @@ const getOpenAIToken = async () => {
 
   return new TextDecoder().decode(await readFile(OpenAIApiKeyLocation));
 };
+
+const getGitPathLocation = async () => {
+  let startLocation = pathToFileURL(`${process.cwd()}/`);
+  while (true) {
+    const gitLocation = new URL(".git/", startLocation);
+    const statGitLocation = existsSync(gitLocation)
+      ? await stat(gitLocation)
+      : null;
+    if (statGitLocation?.isDirectory()) return gitLocation;
+    if (startLocation.pathname === "/") return null;
+    startLocation = new URL("../", startLocation);
+  }
+};
+
+const prepareCommitMSGHook = `
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+git-assistant get-commit-message | cat - $COMMIT_MSG_FILE > $COMMIT_MSG_FILE-git-assistant
+cat $COMMIT_MSG_FILE-git-assistant > $COMMIT_MSG_FILE
+`.trimStart();
 
 const getOpenAI = async () => {
   const apiKey = await getOpenAIToken();
@@ -176,6 +198,19 @@ A continuación una sección Changes con el detallo de los cambios realizados, l
     PRMessage: assistantPRMessage.id,
   });
   console.log(`Store config assistants`);
+
+  const gitDirLocation = await getGitPathLocation();
+
+  if (!gitDirLocation) {
+    await console.log(`Skip install hook`);
+  } else {
+    await writeFile(
+      new URL("hooks/prepare-commit-msg", gitDirLocation),
+      prepareCommitMSGHook,
+      { mode: 0o500 },
+    );
+    console.log(`Installed git hook prepare-commit-msg`);
+  }
 };
 
 // const logDirLocation = new URL('.logs/requests/', import.meta.url)
