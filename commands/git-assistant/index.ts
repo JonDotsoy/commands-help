@@ -207,7 +207,7 @@ A continuación una sección Changes con el detallo de los cambios realizados, l
     await writeFile(
       new URL("hooks/prepare-commit-msg", gitDirLocation),
       prepareCommitMSGHook,
-      { mode: 0o500 },
+      { mode: 0o700 },
     );
     console.log(`Installed git hook prepare-commit-msg`);
   }
