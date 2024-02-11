@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.1.0...git-assistant-v0.2.0) (2024-02-11)
+
+
+### Features
+
+* Rename git-tools to git-assistant across project ([67b12a5](https://github.com/JonDotsoy/commands-help/commit/67b12a508327eeeb22ce3180fa67e19a98e78686))
+
 ## 0.1.0 (2024-02-10)
 
 
