@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.3.0...git-assistant-v0.4.0) (2024-02-11)
+
+
+### Features
+
+* Add setup instructions for git-assistant ([d76c2f7](https://github.com/JonDotsoy/commands-help/commit/d76c2f7fedf9ab229f9f87b153c14fb069b804fc))
+
 ## [0.3.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.2.0...git-assistant-v0.3.0) (2024-02-11)
 
 
