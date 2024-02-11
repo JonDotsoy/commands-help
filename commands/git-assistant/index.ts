@@ -268,11 +268,23 @@ async function* simpleMessageToOpenAI(
 }
 
 const getCommitMessage = async (args: string[]) => {
+  const envNoAssistant = process.env.NO_ASSISTANT?.length ?? 0 > 0;
+
   type Options = {};
   const rules: Rule<Options>[] = [];
   const options = flags<Options>(args, {}, rules);
 
   const currentDiff = await gitDiffStaged();
+  const sizeCurrentDiff = currentDiff.trim().length;
+
+  if (sizeCurrentDiff === 0) {
+    process.stderr.write(`Without changes.\n`);
+    return;
+  }
+
+  if (envNoAssistant) {
+    return;
+  }
 
   const assistant_id = (await getConfigAssistant()).commitMessage;
 
