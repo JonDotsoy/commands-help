@@ -23,6 +23,10 @@ Simple!
 
 git-assistant use [OpenAI](https://openai.com/) to generate commit messages.
 
+## Setup
+
+On your project run `git assistant init` (If is your first time run `git assistant init --token <API KEY OpenAI>`) and enjoy commit many commits.
+
 ### Installing
 
 #### Installing with homebrew
