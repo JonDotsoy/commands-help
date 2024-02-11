@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.2.0...git-assistant-v0.3.0) (2024-02-11)
+
+
+### Features
+
+* **git-assistant:** Enhance commit message generation workflow ([adbe656](https://github.com/JonDotsoy/commands-help/commit/adbe656be275d10b09d185b4df83e0cee8c23d2d))
+* **git-assistant:** Exclude CHANGELOG.md from Prettier formatting ([58809ff](https://github.com/JonDotsoy/commands-help/commit/58809ff67700ef35506dd8488db7af0f63c2f580))
+* **git-assistant:** Increase permissions on prepare-commit-msg hook ([135f020](https://github.com/JonDotsoy/commands-help/commit/135f020f99c8372e67f8c51a11a0d6fdb65b0721))
+
 ## [0.2.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.1.0...git-assistant-v0.2.0) (2024-02-11)
 
 
