@@ -27,7 +27,20 @@ import ms from "ms";
 // Global Environment
 const envNoAssistant = (process.env.NO_ASSISTANT?.length ?? 0) > 0;
 const gitAssistantDebug = (process.env.GIT_ASSISTANT_DEBUG?.length ?? 0) > 0;
-const retrieveTimeOut = ms(process.env.GIT_ASSISTANT_TIMEOUT ?? "60s");
+const retrieveTimeOut = ms(process.env.GIT_ASSISTANT_TIMEOUT ?? "2m");
+
+const createCancelingBehavior = (cancelFunction: () => Promise<any>) => {
+  let aborted = false;
+  return {
+    abort() {
+      aborted = true;
+    },
+    [Symbol.asyncDispose]: async () => {
+      if (aborted) return;
+      await cancelFunction();
+    },
+  };
+};
 
 class ErrorNotFound extends Error {}
 
@@ -263,10 +276,10 @@ async function* simpleMessageToOpenAI(
     openAI.beta.threads.runs.create(thread.id, { assistant_id }),
   );
 
-  const listenerBeforeExit = async () => {
+  await using cancelingBehavior = createCancelingBehavior(async () => {
     await fnLog(() => openAI.beta.threads.runs.cancel(thread.id, run.id));
-  };
-  process.addListener("beforeExit", listenerBeforeExit);
+    console.log(`Canceled`);
+  });
 
   while (true) {
     const { status } = await fnLog(() =>
@@ -285,7 +298,7 @@ async function* simpleMessageToOpenAI(
     break;
   }
 
-  process.removeListener("beforeExit", listenerBeforeExit);
+  cancelingBehavior.abort();
 
   const messages = await fnLog(() =>
     openAI.beta.threads.messages.list(thread.id),
