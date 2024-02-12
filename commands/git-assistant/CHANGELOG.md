@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.4.0...git-assistant-v0.5.0) (2024-02-12)
+
+
+### Features
+
+* add debug logging and environment flag support to git-assistant ([9a0e774](https://github.com/JonDotsoy/commands-help/commit/9a0e7744a3e906b4962f2c97f09be78908dca9c1))
+* add MIT License to git-assistant project ([e33fa31](https://github.com/JonDotsoy/commands-help/commit/e33fa317c6403514ef27db5798cb10554a0aa4a5))
+* **commands/git-assistant:** Implement graceful shutdown handling for OpenAI runs ([8d7b7a1](https://github.com/JonDotsoy/commands-help/commit/8d7b7a146ac77c380d9a969fdc6845d58a9242a3))
+* **commands/git-assistant:** Simplify thread creation with inline message ([8893077](https://github.com/JonDotsoy/commands-help/commit/88930770432e180946b5f61bb14b1650cd47e09b))
+* enhance git-assistant with graceful cancellation and extend timeout ([a6c2e33](https://github.com/JonDotsoy/commands-help/commit/a6c2e33cfe649135284c17a2459b686071fd684e))
+* **git-assistant:** remove redundant cancellation log ([273f38d](https://github.com/JonDotsoy/commands-help/commit/273f38d81c6a1c63146fc381ef7c55e790578b2b))
+* Implement timeout mechanism for OpenAI requests ([c239b0b](https://github.com/JonDotsoy/commands-help/commit/c239b0b20fb37da6b7a29287c5ec95aa03f1e9e6))
+
 ## [0.4.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.3.0...git-assistant-v0.4.0) (2024-02-11)
 
 
