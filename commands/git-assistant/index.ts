@@ -278,7 +278,6 @@ async function* simpleMessageToOpenAI(
 
   await using cancelingBehavior = createCancelingBehavior(async () => {
     await fnLog(() => openAI.beta.threads.runs.cancel(thread.id, run.id));
-    console.log(`Canceled`);
   });
 
   while (true) {
