@@ -259,6 +259,11 @@ async function* simpleMessageToOpenAI(
     openAI.beta.threads.runs.create(thread.id, { assistant_id }),
   );
 
+  const listenerBeforeExit = async () => {
+    await fnLog(() => openAI.beta.threads.runs.cancel(thread.id, run.id));
+  };
+  process.addListener("beforeExit", listenerBeforeExit);
+
   while (true) {
     const { status } = await fnLog(() =>
       openAI.beta.threads.runs.retrieve(thread.id, run.id),
@@ -271,6 +276,8 @@ async function* simpleMessageToOpenAI(
 
     break;
   }
+
+  process.removeListener("beforeExit", listenerBeforeExit);
 
   const messages = await fnLog(() =>
     openAI.beta.threads.messages.list(thread.id),
