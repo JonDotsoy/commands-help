@@ -232,12 +232,9 @@ async function* simpleMessageToOpenAI(
 
   const openAI = await getOpenAI();
 
-  const thread = await fnLog(() => openAI.beta.threads.create());
-
-  await fnLog(() =>
-    openAI.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: message_content,
+  const thread = await fnLog(() =>
+    openAI.beta.threads.create({
+      messages: [{ role: "user", content: message_content }],
     }),
   );
 
