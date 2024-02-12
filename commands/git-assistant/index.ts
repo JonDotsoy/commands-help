@@ -22,10 +22,12 @@ import chalk from "chalk";
 import type { MessageContentText } from "openai/resources/beta/threads/messages/messages.mjs";
 import { existsSync } from "fs";
 import * as YAML from "yaml";
+import ms from "ms";
 
 // Global Environment
 const envNoAssistant = (process.env.NO_ASSISTANT?.length ?? 0) > 0;
 const gitAssistantDebug = (process.env.GIT_ASSISTANT_DEBUG?.length ?? 0) > 0;
+const retrieveTimeOut = ms(process.env.GIT_ASSISTANT_TIMEOUT ?? "60s");
 
 class ErrorNotFound extends Error {}
 
@@ -225,6 +227,8 @@ async function* simpleMessageToOpenAI(
   assistant_id: string,
   message_content: string,
 ) {
+  const startTime = Date.now();
+
   const debug = (symbol: "|" | "<" | ">", message: string | (() => string)) => {
     if (gitAssistantDebug) {
       console.error(
@@ -270,6 +274,10 @@ async function* simpleMessageToOpenAI(
     );
 
     if (status === "in_progress") {
+      const duration = Date.now() - startTime;
+      if (duration > retrieveTimeOut) {
+        throw new Error(`OpenAI Run timeout of ${retrieveTimeOut}ms exceeded`);
+      }
       await sleep(500);
       continue;
     }
