@@ -23,6 +23,10 @@ import type { MessageContentText } from "openai/resources/beta/threads/messages/
 import { existsSync } from "fs";
 import * as YAML from "yaml";
 
+// Global Environment
+const envNoAssistant = (process.env.NO_ASSISTANT?.length ?? 0) > 0;
+const gitAssistantDebug = (process.env.GIT_ASSISTANT_DEBUG?.length ?? 0) > 0;
+
 class ErrorNotFound extends Error {}
 
 const sleep = async (t: number) => {
@@ -221,12 +225,25 @@ async function* simpleMessageToOpenAI(
   assistant_id: string,
   message_content: string,
 ) {
+  const debug = (symbol: "|" | "<" | ">", message: string | (() => string)) => {
+    if (gitAssistantDebug) {
+      console.error(
+        (typeof message === "function" ? message() : message)
+          .split("\n")
+          .map((part, index) =>
+            index === 0 ? `${symbol} ${part}` : `  ${part}`,
+          )
+          .join("\n"),
+      );
+    }
+  };
+  debug("|", `assistant_id = ${assistant_id}`);
+  debug("|", `message_content = ${message_content}`);
+
   const fnLog = async <T>(fn: () => Promise<T>): Promise<T> => {
-    // const logLocationRequest = new URL(`${Date.now()}-${logCounter.nextCounter()}.req`, logDirLocation)
-    // const logLocationResponse = new URL(`${Date.now()}-${logCounter.nextCounter()}.res`, logDirLocation)
-    // await writeFile(logLocationRequest, `${fn.toString()}`)
+    debug(">", () => `${fn.toString()}`);
     const res = await fn();
-    // await writeFile(logLocationResponse, `${inspect(res, { depth: Infinity })}`)
+    debug("<", () => `${inspect(res, { depth: Infinity })}`);
     return res;
   };
 
@@ -265,8 +282,6 @@ async function* simpleMessageToOpenAI(
 }
 
 const getCommitMessage = async (args: string[]) => {
-  const envNoAssistant = process.env.NO_ASSISTANT?.length ?? 0 > 0;
-
   type Options = {};
   const rules: Rule<Options>[] = [];
   const options = flags<Options>(args, {}, rules);
