@@ -23,6 +23,7 @@ import type { MessageContentText } from "openai/resources/beta/threads/messages/
 import { existsSync } from "fs";
 import * as YAML from "yaml";
 import ms from "ms";
+import { getVersion } from "./version" with { type: "macro" };
 
 // Global Environment
 const envNoAssistant = (process.env.NO_ASSISTANT?.length ?? 0) > 0;
@@ -397,6 +398,7 @@ async function main(args: string[]) {
     init: string[];
     getCommitMessage: string[];
     getPRMessage: string[];
+    showVersion: boolean;
   };
   const rules: Rule<Options>[] = [
     rule(command("init"), restArgumentsAt("init"), {
@@ -408,9 +410,15 @@ async function main(args: string[]) {
     rule(command("get-pr-message"), restArgumentsAt("getPRMessage"), {
       description: "Create a PR commit message. Title, changes and references",
     }),
+    rule(flag("--version", "-v"), isBooleanAt("showVersion"), {
+      description: "Show current version",
+    }),
   ];
   const options = flags<Options>(args, {}, rules);
   const makeHelp = () => makeHelmMessage("cli", rules);
+
+  if (options.showVersion)
+    return console.log(`git-assistant ${getVersion().version}`);
 
   if (options.init) return init(options.init);
   if (options.getCommitMessage)
