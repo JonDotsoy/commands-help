@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.6.0...git-assistant-v0.7.0) (2024-03-07)
+
+
+### Features
+
+* **git-assistant:** Enhance commit message generation with `--only-store` flag and refactor message retrieval ([0e926a4](https://github.com/JonDotsoy/commands-help/commit/0e926a49b94389114ca7d4a0c361308d12a09fba))
+
 ## [0.6.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.5.0...git-assistant-v0.6.0) (2024-03-07)
 
 
