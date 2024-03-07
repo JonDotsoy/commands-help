@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.5.0...git-assistant-v0.6.0) (2024-03-07)
+
+
+### Features
+
+* Add version flag to Git Assistant CLI ([d965b72](https://github.com/JonDotsoy/commands-help/commit/d965b72d970d918ec39cd14a426f69b37874622c))
+* Implement config storage for commit messages ([501cb83](https://github.com/JonDotsoy/commands-help/commit/501cb83c721148b8c2ab51cadcc5d904af838f93))
+
 ## [0.5.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.4.0...git-assistant-v0.5.0) (2024-02-12)
 
 
