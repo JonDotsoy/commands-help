@@ -91,7 +91,7 @@ COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 SHA1=$3
 
-git-assistant get-commit-message | cat - $COMMIT_MSG_FILE > $COMMIT_MSG_FILE-git-assistant
+git-assistant get-commit-message --only-store | cat - $COMMIT_MSG_FILE > $COMMIT_MSG_FILE-git-assistant
 cat $COMMIT_MSG_FILE-git-assistant > $COMMIT_MSG_FILE
 `.trimStart();
 
@@ -264,7 +264,7 @@ A continuación una sección Changes con el detallo de los cambios realizados, l
 // await mkdir(logDirLocation, { recursive: true })
 // const logCounter = { counter: 0, nextCounter: () => (logCounter.counter++).toString().padStart(5, '0') }
 
-async function* simpleMessageToOpenAI(
+async function simpleMessageToOpenAI(
   assistant_id: string,
   message_content: string,
 ) {
@@ -327,13 +327,21 @@ async function* simpleMessageToOpenAI(
 
   cancelingBehavior.abort();
 
-  const messages = await fnLog(() =>
-    openAI.beta.threads.messages.list(thread.id),
-  );
+  const toMessages = async function* () {
+    const messages = await fnLog(() =>
+      openAI.beta.threads.messages.list(thread.id),
+    );
 
-  for await (const e of messages.iterPages()) {
-    yield* await fnLog(async () => e.getPaginatedItems());
-  }
+    for await (const e of messages.iterPages()) {
+      yield* await fnLog(async () => e.getPaginatedItems());
+    }
+  };
+
+  return {
+    thread,
+    run,
+    toMessages,
+  };
 }
 
 const getCommitMessage = async (args: string[]) => {
@@ -371,7 +379,13 @@ const getCommitMessage = async (args: string[]) => {
   if (alreadyHaveMessage && !reloadMessage)
     return process.stdout.write(await gitGetConfig("message"));
 
-  if (options.onlyStored) return;
+  if (options.onlyStored) {
+    process.stdout.write(`# Missing commit message\n`);
+    process.stdout.write(
+      `# Call \`git assistant get-commit-message\` to create a message\n`,
+    );
+    return;
+  }
 
   if (sizeCurrentDiff === 0) {
     process.stderr.write(`Without changes.\n`);
@@ -385,9 +399,9 @@ const getCommitMessage = async (args: string[]) => {
   const assistant_id = (await getConfigAssistant()).commitMessage;
 
   process.stderr.write(`${chalk.gray(`Loading...`)}\n`);
-  const messages = await Array.fromAsync(
-    simpleMessageToOpenAI(assistant_id, currentDiff),
-  );
+  const p = await simpleMessageToOpenAI(assistant_id, currentDiff);
+
+  const messages = await Array.fromAsync(p.toMessages());
 
   const value = messages
     .filter((message) => message.role === "assistant")
@@ -404,6 +418,12 @@ const getCommitMessage = async (args: string[]) => {
   await gitSetConfig("message-key", currentDiffHash);
   await gitSetConfig("message", value);
 
+  process.stdout.write(
+    `# Message generated with OpenAI. Thread ${p.thread.id}\n`,
+  );
+  process.stdout.write(
+    `# Call \`git assistant get-commit-message -r\` to reload message.\n`,
+  );
   process.stdout.write(value);
 };
 
@@ -430,12 +450,12 @@ const getPRMessage = async (args: string[]) => {
   const assistant_id = (await getConfigAssistant()).PRMessage;
 
   process.stderr.write(`${chalk.gray(`Loading...`)}\n`);
-  const messages = await Array.fromAsync(
-    simpleMessageToOpenAI(
-      assistant_id,
-      `${ticketRelated}\n\nNo definido.\n\n${currentDiff}`,
-    ),
+  const p = await simpleMessageToOpenAI(
+    assistant_id,
+    `${ticketRelated}\n\nNo definido.\n\n${currentDiff}`,
   );
+
+  const messages = await Array.fromAsync(p.toMessages());
 
   const value = messages
     .filter((message) => message.role === "assistant")
