@@ -145,6 +145,33 @@ const gitDiffStaged = async () => {
   return await readableStreamToText(childProcess.stdout);
 };
 
+const gitGetConfig = async (name: string) => {
+  const childProcess = Bun.spawn({
+    cmd: ["git", "--no-pager", "config", "--local", `git-assistant.${name}`],
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  return (await readableStreamToText(childProcess.stdout)).trim();
+};
+
+const gitSetConfig = async (name: string, value: string) => {
+  const childProcess = Bun.spawn({
+    cmd: [
+      "git",
+      "--no-pager",
+      "config",
+      "--local",
+      `git-assistant.${name}`,
+      value,
+    ],
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  return await readableStreamToText(childProcess.stdout);
+};
+
 const init = async (args: string[]) => {
   type Options = {
     token: string;
@@ -310,12 +337,41 @@ async function* simpleMessageToOpenAI(
 }
 
 const getCommitMessage = async (args: string[]) => {
-  type Options = {};
-  const rules: Rule<Options>[] = [];
+  type Options = {
+    reload: boolean;
+    onlyStored: boolean;
+  };
+  const rules: Rule<Options>[] = [
+    rule(flag("--reload", "-r"), isBooleanAt("reload"), {
+      description: `Reload message.`,
+    }),
+    rule(flag("--only-store"), isBooleanAt("onlyStored"), {
+      description: `Omit pull message.`,
+    }),
+  ];
   const options = flags<Options>(args, {}, rules);
+  const reloadMessage = options.reload ?? false;
 
   const currentDiff = await gitDiffStaged();
+  const currentDiffHash = Array.from(
+    new Uint8Array(
+      await crypto.subtle.digest(
+        "sha-512",
+        new TextEncoder().encode(currentDiff),
+      ),
+    ),
+    (char) => char.toString(16).padStart(2, "0"),
+  ).join("");
+
   const sizeCurrentDiff = currentDiff.trim().length;
+
+  const storedHash = await gitGetConfig("message-key");
+  const alreadyHaveMessage = storedHash.trim() === currentDiffHash.trim();
+
+  if (alreadyHaveMessage && !reloadMessage)
+    return process.stdout.write(await gitGetConfig("message"));
+
+  if (options.onlyStored) return;
 
   if (sizeCurrentDiff === 0) {
     process.stderr.write(`Without changes.\n`);
@@ -344,6 +400,9 @@ const getCommitMessage = async (args: string[]) => {
         .join("\n"),
     )
     .join("\n");
+
+  await gitSetConfig("message-key", currentDiffHash);
+  await gitSetConfig("message", value);
 
   process.stdout.write(value);
 };
