@@ -380,10 +380,6 @@ const getCommitMessage = async (args: string[]) => {
     return process.stdout.write(await gitGetConfig("message"));
 
   if (options.onlyStored) {
-    process.stdout.write(`# Missing commit message\n`);
-    process.stdout.write(
-      `# Call \`git assistant get-commit-message\` to create a message\n`,
-    );
     return;
   }
 
