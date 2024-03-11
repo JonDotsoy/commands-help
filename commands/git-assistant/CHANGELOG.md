@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.7.0...git-assistant-v0.7.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* **git-assistant:** streamline getCommitMessage handling for onlyStored option ([92dc0ad](https://github.com/JonDotsoy/commands-help/commit/92dc0ade6c94fbfbe456e5fab3cc37c9fd0a8837))
+
 ## [0.7.0](https://github.com/JonDotsoy/commands-help/compare/git-assistant-v0.6.0...git-assistant-v0.7.0) (2024-03-07)
 
 
